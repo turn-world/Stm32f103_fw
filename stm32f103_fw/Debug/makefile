@@ -69,8 +69,8 @@ all: main-build
 main-build: stm32f103_fw.elf secondary-outputs
 
 # Tool invocations
-stm32f103_fw.elf stm32f103_fw.map: $(OBJS) $(USER_OBJS) C:\stm32\stm32f103_fw\src\bsp\ldscript\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "stm32f103_fw.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\stm32\stm32f103_fw\src\bsp\ldscript\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32f103_fw.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+stm32f103_fw.elf stm32f103_fw.map: $(OBJS) $(USER_OBJS) C:\GitHub\stm32f103_fw\src\bsp\ldscript\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "stm32f103_fw.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\GitHub\stm32f103_fw\src\bsp\ldscript\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32f103_fw.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

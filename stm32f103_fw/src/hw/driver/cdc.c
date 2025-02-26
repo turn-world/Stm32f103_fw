@@ -11,5 +11,5 @@ bool cdcInit(void)
 {
   bool ret = true;
 
-  return true;
+  return ret;
 }

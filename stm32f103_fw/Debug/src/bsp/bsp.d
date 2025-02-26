@@ -27,7 +27,10 @@ src/bsp/bsp.o: ../src/bsp/bsp.c ../src/bsp/bsp.h \
  C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h \
  C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd.h \
  C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_usb.h \
- C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd_ex.h
+ C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd_ex.h \
+ C:/GitHub/stm32f103_fw/src/common/hw/include/uart.h \
+ C:/GitHub/stm32f103_fw/src/hw/hw_def.h \
+ C:/GitHub/stm32f103_fw/src/bsp/bsp.h
 ../src/bsp/bsp.h:
 C:/GitHub/stm32f103_fw/src/common/def.h:
 C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
@@ -58,3 +61,6 @@ C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f
 C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd.h:
 C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_usb.h:
 C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd_ex.h:
+C:/GitHub/stm32f103_fw/src/common/hw/include/uart.h:
+C:/GitHub/stm32f103_fw/src/hw/hw_def.h:
+C:/GitHub/stm32f103_fw/src/bsp/bsp.h:

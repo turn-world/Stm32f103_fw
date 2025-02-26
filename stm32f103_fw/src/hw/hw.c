@@ -10,7 +10,7 @@
 
 
 
-
+// 모듈을 만든후 쓰기 위해 추가
 void hwInit(void)
 {
   bspInit();
@@ -20,4 +20,7 @@ void hwInit(void)
   ledInit();
   usbInit();
   uartInit();
+  flashInit();
+
+
 }

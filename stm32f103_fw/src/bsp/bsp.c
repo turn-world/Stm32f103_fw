@@ -7,7 +7,7 @@
 
 
 #include "bsp.h"
-
+#include "uart.h"
 
 void SystemClock_Config(void);
 
@@ -34,7 +34,15 @@ uint32_t millis(void)
 {
   return HAL_GetTick();
 }
+int __io_putchar(int ch)
+{
+  //USB로 printf 캐릭터 전송
+  //
+  uartWrite(_DEF_UART1,(uint8_t *)&ch, 1);
 
+
+  return 1;
+}
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};

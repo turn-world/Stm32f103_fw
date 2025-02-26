@@ -25,42 +25,66 @@ void apMain(void)
   pre_time= millis();
   while(1)
   {
+    // led 깜빡 거리기
     if(millis() - pre_time >= 500)
     {
       pre_time = millis();
       ledToggle(_DEF_LED1);
     }
-    if(uartGetBaud(_DEF_UART1) != uartGetBaud(_DEF_UART2))
+
+    if(uartAvailable(_DEF_UART1) > 0)
     {
-      uartOpen(_DEF_UART2, uartGetBaud(_DEF_UART2)); // 물리적인 uart를 재 오픈 usb통신 속도로
-    }
-    //USB -> UART로 보내는 것
-    rx_len = uartAvailable(_DEF_UART1);
-    if(rx_len > 128)
-    {
-      rx_len = 128;
-    }
-    if(rx_len > 0)
-    {
-      for (int i=0; i<rx_len ; i++)
+      uint8_t rx_data;
+      rx_data = uartRead(_DEF_UART1);
+
+      if(rx_data == '1')
       {
-        rx_buf[i] = uartRead(_DEF_UART1);
-      }
-      uartWrite(_DEF_UART2,rx_buf, rx_len);
-    }
-    //UART -> USB
-    rx_len = uartAvailable(_DEF_UART1);
-        if(rx_len > 128)
-        {
-          rx_len = 128;
-        }
-        if(rx_len > 0)
-        {
-          for (int i=0; i<rx_len ; i++)
+          uint8_t buf[32];
+
+          logPrintf("Read...\n");
+
+          flashRead(0x8000000 + (60*1024),buf,32 );
+
+          for(int i =0; i <32; i++)
           {
-            rx_buf[i] = uartRead(_DEF_UART2);
+            logPrintf("0x%X : 0x%X\n", 0x8000000 + (60*1024) , buf[i]);
           }
-          uartWrite(_DEF_UART1,rx_buf, rx_len);
+      }
+
+      if(rx_data == '2')
+      {
+        logPrintf("Erase...\n");
+
+        if(flashErase(0x8000000 + (60*1024), 32) == true)
+        {
+          logPrintf("Erase OK\n");
         }
+        else
+        {
+          logPrintf("Erase Fail\n");
+        }
+      }
+
+      if(rx_data == '3')
+      {
+        uint8_t buf[32];
+
+        for(int i=0; i<32; i++)
+        {
+          buf[i] = i;
+        }
+
+        logPrintf("Write...\n");
+
+        if(flashWrite(0x8000000 + (60*1024),buf,32))
+        {
+          logPrintf("Write OK\n");
+        }
+        else
+        {
+          logPrintf("Write Fail\n");
+        }
+      }
+    }
   }
 }

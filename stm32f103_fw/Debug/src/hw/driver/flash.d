@@ -1,4 +1,6 @@
-src/hw/hw.o: ../src/hw/hw.c ../src/hw/hw.h ../src/hw/hw_def.h \
+src/hw/driver/flash.o: ../src/hw/driver/flash.c \
+ C:/GitHub/stm32f103_fw/src/common/hw/include/flash.h \
+ C:/GitHub/stm32f103_fw/src/hw/hw_def.h \
  C:/GitHub/stm32f103_fw/src/common/def.h \
  C:/GitHub/stm32f103_fw/src/bsp/bsp.h \
  C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h \
@@ -28,16 +30,9 @@ src/hw/hw.o: ../src/hw/hw.c ../src/hw/hw.h ../src/hw/hw_def.h \
  C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h \
  C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd.h \
  C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_usb.h \
- C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd_ex.h \
- C:/GitHub/stm32f103_fw/src/common/hw/include/led.h \
- C:/GitHub/stm32f103_fw/src/hw/hw_def.h \
- C:/GitHub/stm32f103_fw/src/common/hw/include/uart.h \
- C:/GitHub/stm32f103_fw/src/common/hw/include/usb.h \
- C:/GitHub/stm32f103_fw/src/common/hw/include/rtc.h \
- C:/GitHub/stm32f103_fw/src/common/hw/include/reset.h \
- C:/GitHub/stm32f103_fw/src/common/hw/include/flash.h
-../src/hw/hw.h:
-../src/hw/hw_def.h:
+ C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd_ex.h
+C:/GitHub/stm32f103_fw/src/common/hw/include/flash.h:
+C:/GitHub/stm32f103_fw/src/hw/hw_def.h:
 C:/GitHub/stm32f103_fw/src/common/def.h:
 C:/GitHub/stm32f103_fw/src/bsp/bsp.h:
 C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
@@ -68,10 +63,3 @@ C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f
 C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd.h:
 C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_usb.h:
 C:/GitHub/stm32f103_fw/src/lib/cube_f103/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd_ex.h:
-C:/GitHub/stm32f103_fw/src/common/hw/include/led.h:
-C:/GitHub/stm32f103_fw/src/hw/hw_def.h:
-C:/GitHub/stm32f103_fw/src/common/hw/include/uart.h:
-C:/GitHub/stm32f103_fw/src/common/hw/include/usb.h:
-C:/GitHub/stm32f103_fw/src/common/hw/include/rtc.h:
-C:/GitHub/stm32f103_fw/src/common/hw/include/reset.h:
-C:/GitHub/stm32f103_fw/src/common/hw/include/flash.h:

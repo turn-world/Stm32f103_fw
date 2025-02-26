@@ -37,7 +37,8 @@ src/bsp/stm32f1xx_hal_msp.o: ../src/bsp/stm32f1xx_hal_msp.c \
  C:/GitHub/stm32f103_fw/src/common/hw/include/uart.h \
  C:/GitHub/stm32f103_fw/src/common/hw/include/usb.h \
  C:/GitHub/stm32f103_fw/src/common/hw/include/rtc.h \
- C:/GitHub/stm32f103_fw/src/common/hw/include/reset.h
+ C:/GitHub/stm32f103_fw/src/common/hw/include/reset.h \
+ C:/GitHub/stm32f103_fw/src/common/hw/include/flash.h
 C:/GitHub/stm32f103_fw/src/main.h:
 C:/GitHub/stm32f103_fw/src/ap/ap.h:
 C:/GitHub/stm32f103_fw/src/hw/hw.h:
@@ -78,3 +79,4 @@ C:/GitHub/stm32f103_fw/src/common/hw/include/uart.h:
 C:/GitHub/stm32f103_fw/src/common/hw/include/usb.h:
 C:/GitHub/stm32f103_fw/src/common/hw/include/rtc.h:
 C:/GitHub/stm32f103_fw/src/common/hw/include/reset.h:
+C:/GitHub/stm32f103_fw/src/common/hw/include/flash.h:

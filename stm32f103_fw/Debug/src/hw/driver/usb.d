@@ -40,7 +40,8 @@ src/hw/driver/usb.o: ../src/hw/driver/usb.c \
  C:/GitHub/stm32f103_fw/src/common/hw/include/led.h \
  C:/GitHub/stm32f103_fw/src/common/hw/include/uart.h \
  C:/GitHub/stm32f103_fw/src/common/hw/include/rtc.h \
- C:/GitHub/stm32f103_fw/src/common/hw/include/reset.h
+ C:/GitHub/stm32f103_fw/src/common/hw/include/reset.h \
+ C:/GitHub/stm32f103_fw/src/common/hw/include/flash.h
 C:/GitHub/stm32f103_fw/src/common/hw/include/usb.h:
 C:/GitHub/stm32f103_fw/src/hw/hw_def.h:
 C:/GitHub/stm32f103_fw/src/common/def.h:
@@ -84,3 +85,4 @@ C:/GitHub/stm32f103_fw/src/common/hw/include/led.h:
 C:/GitHub/stm32f103_fw/src/common/hw/include/uart.h:
 C:/GitHub/stm32f103_fw/src/common/hw/include/rtc.h:
 C:/GitHub/stm32f103_fw/src/common/hw/include/reset.h:
+C:/GitHub/stm32f103_fw/src/common/hw/include/flash.h:

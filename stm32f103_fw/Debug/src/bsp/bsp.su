@@ -1,0 +1,6 @@
+../src/bsp/bsp.c:34:6:delay	0	static
+../src/bsp/bsp.c:39:10:millis	0	static
+../src/bsp/bsp.c:43:5:__io_putchar	16	static
+../src/bsp/bsp.c:52:6:SystemClock_Config	88	static,ignoring_inline_asm
+../src/bsp/bsp.c:14:6:bspInit	40	static
+../src/bsp/bsp.c:105:6:Error_Handler	0	static,ignoring_inline_asm

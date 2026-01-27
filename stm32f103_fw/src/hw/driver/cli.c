@@ -12,6 +12,7 @@
 
 
 
+
 #define CLI_KEY_BACK              0x08
 #define CLI_KEY_DEL               0x7F
 #define CLI_KEY_ENTER             0x0D
@@ -25,6 +26,9 @@
 
 #define CLI_PROMPT_STR            "cli# "
 
+#define CLI_ARGS_MAX              32
+#define CLI_PRINT_BUF_MAX         256
+
 
 enum
 {
@@ -35,8 +39,16 @@ enum
   CLI_RX_SP4,
 };
 
+// 명령 테이블
+// 명령어 이름 + 실행 함수
+typedef struct
+{
+  char   cmd_str[CLI_CMD_NAME_MAX];
+  void (*cmd_func)(cli_args_t *);
+} cli_cmd_t;
 
-
+// 한 줄 입력 버퍼
+// 입력 문자열, 문자열 길이, 현재 커서 위치, 최대 길이
 typedef struct
 {
   uint8_t buf[CLI_LINE_BUF_MAX];
@@ -48,21 +60,30 @@ typedef struct
 
 typedef struct
 {
-  uint8_t  ch;
-  uint32_t baud;
-  bool     is_open;
-  bool     is_log;
-  uint8_t  log_ch;
-  uint32_t log_baud;
-  uint8_t  state;
+  uint8_t  ch;										//	cli가 연결된 uart 채널 번호
+  uint32_t baud;									// cli uart 통신 속도
+  bool     is_open;									// cli uart가 정상적으로 open 되어있는지
+  bool     is_log;									// 로그 출력용 uart 사용 여부 true 이면 cli 동작 상태를 별도 uart로 출력
+  uint8_t  log_ch;									// 로그 출력용 uart 쵀널 번호
+  uint32_t log_baud;								// 로그 출력용 uart baud rate
+  uint8_t  state;									// 수신 상태 머신 상태
+  char     print_buffer[CLI_PRINT_BUF_MAX];
+  uint16_t  argc;									// 파싱된 인자의 개수
+  char     *argv[CLI_ARGS_MAX];						// 파싱된 인자 문자열 포인터 배열
+  	  	  	  	  	  	  	  	  	  	  	  	  	// argv[0] = 명령어
+  	  	  	  	  	  	  	  	  	  	  	  	  	// argv[1..] = 명령 인자들
 
-  bool        hist_line_new;
-  int8_t      hist_line_i;
-  uint8_t     hist_line_last;
-  uint8_t     hist_line_count;
+  bool        hist_line_new;						// 새 명령이 입력된 직후인지 여부
+  int8_t      hist_line_i;							// 현재 선택된 히스토리 인덱스
+  uint8_t     hist_line_last;						// 가장 최근에 저장된 히스토리 위치
+  uint8_t     hist_line_count;						// 현재 저장된 히스토리 개수
 
-  cli_line_t  line_buf[CLI_LINE_HIS_MAX];
-  cli_line_t  line;
+  cli_line_t  line_buf[CLI_LINE_HIS_MAX];			// 명령어 히스토리 버퍼
+  cli_line_t  line;									// 현재 사용자가 입력 중인 한 줄(line)
+
+  uint16_t    cmd_count;							//
+  cli_cmd_t   cmd_list[CLI_CMD_LIST_MAX];			// hw_def에서 몇개까지 명령어를 정의 할 것이냐
+  cli_args_t  cmd_args;								// 넘겨준 파라미터 미리 정의
 } cli_t;
 
 
@@ -76,8 +97,18 @@ static void cliLineClean(cli_t *p_cli);
 static void cliLineAdd(cli_t *p_cli);
 static void cliLineChange(cli_t *p_cli, int8_t key_up);
 static void cliShowPrompt(cli_t *p_cli);
+static void cliToUpper(char *str);
+static bool cliRunCmd(cli_t *p_cli);
+static bool cliParseArgs(cli_t *p_cli);
+
+static int32_t  cliArgsGetData(uint8_t index);
+static float    cliArgsGetFloat(uint8_t index);
+static char    *cliArgsGetStr(uint8_t index);
+static bool     cliArgsIsStr(uint8_t index, char *p_str);
 
 
+void cliShowList(cli_args_t *args);				// 명령어 출력
+void cliMemoryDump(cli_args_t *args);			// 특정 주소의 메모리 데이터를 출력함
 
 
 bool cliInit(void)
@@ -91,7 +122,16 @@ bool cliInit(void)
   cli_node.hist_line_count = 0;
   cli_node.hist_line_new   = false;
 
+  cli_node.cmd_args.getData  = cliArgsGetData;
+  cli_node.cmd_args.getFloat = cliArgsGetFloat;
+  cli_node.cmd_args.getStr   = cliArgsGetStr;
+  cli_node.cmd_args.isStr    = cliArgsIsStr;
+
   cliLineClean(&cli_node);
+
+
+  cliAdd("help", cliShowList);
+  cliAdd("md"  , cliMemoryDump);
 
   return true;
 }
@@ -188,6 +228,7 @@ bool cliUpdate(cli_t *p_cli, uint8_t rx_data)
         if (line->count > 0)
         {
           cliLineAdd(p_cli);
+          cliRunCmd(p_cli);
         }
 
         line->count = 0;
@@ -444,4 +485,282 @@ void cliLineChange(cli_t *p_cli, int8_t key_up)
   p_cli->hist_line_new = false;
 }
 
+bool cliRunCmd(cli_t *p_cli)
+{
+  bool ret = false;
 
+
+  if (cliParseArgs(p_cli) == true)
+  {
+    cliPrintf("\r\n");
+
+    cliToUpper(p_cli->argv[0]);
+
+    for (int i=0; i<p_cli->cmd_count; i++)
+    {
+      if (strcmp(p_cli->argv[0], p_cli->cmd_list[i].cmd_str) == 0)
+      {
+        p_cli->cmd_args.argc =  p_cli->argc - 1;
+        p_cli->cmd_args.argv = &p_cli->argv[1];
+        p_cli->cmd_list[i].cmd_func(&p_cli->cmd_args);
+        break;
+      }
+    }
+  }
+
+  return ret;
+}
+
+bool cliParseArgs(cli_t *p_cli)
+{
+  bool ret = false;
+  char *tok;
+  char *next_ptr;
+  uint16_t argc = 0;
+  static const char *delim = " \f\n\r\t\v";
+  char *cmdline;
+  char **argv;
+
+  p_cli->argc = 0;
+
+  cmdline = (char *)p_cli->line.buf;
+  argv    = p_cli->argv;
+
+  argv[argc] = NULL;
+
+  for (tok = strtok_r(cmdline, delim, &next_ptr); tok; tok = strtok_r(NULL, delim, &next_ptr))
+  {
+    argv[argc++] = tok;
+  }
+
+  p_cli->argc = argc;
+
+  if (argc > 0)
+  {
+    ret = true;
+  }
+
+  return ret;
+}
+
+void cliPrintf(const char *fmt, ...)
+{
+  va_list arg;
+  va_start (arg, fmt);
+  int32_t len;
+  cli_t *p_cli = &cli_node;
+
+
+  len = vsnprintf(p_cli->print_buffer, 256, fmt, arg);
+  va_end (arg);
+
+  uartWrite(p_cli->ch, (uint8_t *)p_cli->print_buffer, len);
+}
+
+void cliToUpper(char *str)
+{
+  uint16_t i;
+  uint8_t  str_ch;
+
+  for (i=0; i<CLI_CMD_NAME_MAX; i++)
+  {
+    str_ch = str[i];
+
+    if (str_ch == 0)
+    {
+      break;
+    }
+
+    if ((str_ch >= 'a') && (str_ch <= 'z'))
+    {
+      str_ch = str_ch - 'a' + 'A';
+    }
+    str[i] = str_ch;
+  }
+
+  if (i == CLI_CMD_NAME_MAX)
+  {
+    str[i-1] = 0;
+  }
+}
+
+int32_t cliArgsGetData(uint8_t index)
+{
+  int32_t ret = 0;
+  cli_t *p_cli = &cli_node;
+
+
+  if (index >= p_cli->cmd_args.argc)
+  {
+    return 0;
+  }
+
+  ret = (int32_t)strtoul((const char * ) p_cli->cmd_args.argv[index], (char **)NULL, (int) 0);
+
+  return ret;
+}
+
+float cliArgsGetFloat(uint8_t index)
+{
+  float ret = 0.0;
+  cli_t *p_cli = &cli_node;
+
+
+  if (index >= p_cli->cmd_args.argc)
+  {
+    return 0;
+  }
+
+  ret = (float)strtof((const char * ) p_cli->cmd_args.argv[index], (char **)NULL);
+
+  return ret;
+}
+
+char *cliArgsGetStr(uint8_t index)
+{
+  char *ret = NULL;
+  cli_t *p_cli = &cli_node;
+
+
+  if (index >= p_cli->cmd_args.argc)
+  {
+    return 0;
+  }
+
+  ret = p_cli->cmd_args.argv[index];
+
+  return ret;
+}
+
+bool cliArgsIsStr(uint8_t index, char *p_str)
+{
+  bool ret = false;
+  cli_t *p_cli = &cli_node;
+
+
+  if (index >= p_cli->cmd_args.argc)
+  {
+    return 0;
+  }
+
+  if(strcmp(p_str, p_cli->cmd_args.argv[index]) == 0)
+  {
+    ret = true;
+  }
+
+  return ret;
+}
+
+bool cliKeepLoop(void)
+{
+  cli_t *p_cli = &cli_node;
+
+
+  if (uartAvailable(p_cli->ch) == 0)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+bool cliAdd(const char *cmd_str, void (*p_func)(cli_args_t *))
+{
+  bool ret = true;
+  cli_t *p_cli = &cli_node;
+  uint16_t index;
+
+  if (p_cli->cmd_count >= CLI_CMD_LIST_MAX)
+  {
+    return false;
+  }
+
+  index = p_cli->cmd_count;
+
+  strcpy(p_cli->cmd_list[index].cmd_str, cmd_str);
+  p_cli->cmd_list[index].cmd_func = p_func;
+
+  cliToUpper(p_cli->cmd_list[index].cmd_str);
+
+  p_cli->cmd_count++;
+
+  return ret;
+}
+
+void cliShowList(cli_args_t *args)
+{
+  cli_t *p_cli = &cli_node;
+
+
+  cliPrintf("\r\n");
+  cliPrintf("---------- cmd list ---------\r\n");
+
+  for (int i=0; i<p_cli->cmd_count; i++)
+  {
+    cliPrintf(p_cli->cmd_list[i].cmd_str);
+    cliPrintf("\r\n");
+  }
+
+  cliPrintf("-----------------------------\r\n");
+}
+
+void cliMemoryDump(cli_args_t *args)
+{
+  int idx, size = 16;
+  unsigned int *addr;
+  int idx1, i;
+  unsigned int *ascptr;
+  unsigned char asc[4];
+
+  int    argc = args->argc;
+  char **argv = args->argv;
+
+
+  if(args->argc < 1)
+  {
+    cliPrintf(">> md addr [size] \n");
+    return;
+  }
+
+  if(argc > 1)
+  {
+    size = (int)strtoul((const char * ) argv[1], (char **)NULL, (int) 0);
+  }
+  addr   = (unsigned int *)strtoul((const char * ) argv[0], (char **)NULL, (int) 0);
+  ascptr = (unsigned int *)addr;
+
+  cliPrintf("\n   ");
+  for (idx = 0; idx<size; idx++)
+  {
+    if((idx%4) == 0)
+    {
+      cliPrintf(" 0x%08X: ", (unsigned int)addr);
+    }
+    cliPrintf(" 0x%08X", *(addr));
+
+    if ((idx%4) == 3)
+    {
+      cliPrintf ("  |");
+      for (idx1= 0; idx1< 4; idx1++)
+      {
+        memcpy((char *)asc, (char *)ascptr, 4);
+        for (i=0;i<4;i++)
+        {
+          if (asc[i] > 0x1f && asc[i] < 0x7f)
+          {
+            cliPrintf("%c", asc[i]);
+          }
+          else
+          {
+            cliPrintf(".");
+          }
+        }
+        ascptr+=1;
+      }
+      cliPrintf("|\n   ");
+    }
+    addr++;
+  }
+}
